@@ -30,7 +30,7 @@ install(
 )
 export(
     EXPORT ${PROJECT_NAME}-targets
-    NAMESPACE Obj
+    NAMESPACE obj-cpp::
 )
 
 if (OBJCPP_BUILD_TESTS)
