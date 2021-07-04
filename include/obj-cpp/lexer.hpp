@@ -1,6 +1,6 @@
 #pragma once
-#ifndef OBJ_LEXER_HPP
-#define OBJ_LEXER_HPP
+#ifndef OBJCPP_LEXER_HPP
+#define OBJCPP_LEXER_HPP
 
 #include <array>
 #include <cassert>
@@ -236,4 +236,4 @@ namespace obj
 
 } // namespace obj
 
-#endif // !OBJ_LEXER_HPP
+#endif // !OBJCPP_LEXER_HPP

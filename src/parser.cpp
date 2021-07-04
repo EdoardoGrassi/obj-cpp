@@ -1,6 +1,6 @@
-#include "lexer.hpp"
-#include "object.hpp"
-#include "parser.hpp"
+#include "obj-cpp/core.hpp"
+#include "obj-cpp/lexer.hpp"
+#include "obj-cpp/parser.hpp"
 
 #include <algorithm>
 #include <array>

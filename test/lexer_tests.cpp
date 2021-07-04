@@ -1,4 +1,4 @@
-#include "lexer.hpp"
+#include "obj-cpp/lexer.hpp"
 
 #include "gtest/gtest.h"
 

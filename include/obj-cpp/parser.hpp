@@ -1,8 +1,8 @@
 #pragma once
-#ifndef OBJ_PARSER_HPP
-#define OBJ_PARSER_HPP
+#ifndef OBJCPP_PARSER_HPP
+#define OBJCPP_PARSER_HPP
 
-#include "object.hpp"
+#include "obj-cpp/core.hpp"
 
 #include <memory>
 #include <span>
@@ -216,4 +216,4 @@ namespace obj
 
 } // namespace obj
 
-#endif // !OBJ_PARSER_HPP
+#endif // !OBJCPP_PARSER_HPP

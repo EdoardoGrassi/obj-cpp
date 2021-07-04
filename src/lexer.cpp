@@ -1,6 +1,8 @@
-#include "lexer.hpp"
+#include "obj-cpp/lexer.hpp"
 
+#include <cassert>
 #include <span>
+#include <stdexcept>
 #include <vector>
 
 namespace obj

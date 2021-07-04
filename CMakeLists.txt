@@ -3,21 +3,35 @@ project ("obj-cpp")
 
 option(OBJCPP_BUILD_TESTS "Build unit tests" ON)
 
-add_library(${PROJECT_NAME} STATIC
+add_library(obj-cpp STATIC
     "src/lexer.cpp"
     "src/parser.cpp"
-    "src/object.cpp"
+    "src/core.cpp"
 )
 
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+target_compile_features(obj-cpp PUBLIC cxx_std_20)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+if (MSVC)
+    #target_compile_options(obj-cpp PRIVATE "/W4")
+endif()
+
+target_include_directories(
+    obj-cpp PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-add_executable(obj-viewer "src/obj_viewer.cpp")
-target_link_libraries(obj-viewer PRIVATE ${PROJECT_NAME})
+add_executable(obj-viewer "src/viewer.cpp")
+target_link_libraries(obj-viewer PRIVATE obj-cpp)
+
+install(
+    TARGETS obj-cpp
+    EXPORT ${PROJECT_NAME}-targets
+)
+export(
+    EXPORT ${PROJECT_NAME}-targets
+    NAMESPACE Obj
+)
 
 if (OBJCPP_BUILD_TESTS)
     enable_testing()

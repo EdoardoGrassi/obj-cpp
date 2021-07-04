@@ -1,4 +1,4 @@
 obj-cpp
 =======
 
-Parser for .obj files.
+A C++ library for .obj files.

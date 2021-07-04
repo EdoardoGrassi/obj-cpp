@@ -1,6 +1,6 @@
 #pragma once
-#ifndef OBJ_OBJECT_HPP
-#define OBJ_OBJECT_HPP
+#ifndef OBJCPP_CORE_HPP
+#define OBJCPP_CORE_HPP
 
 #include <array>
 #include <string>
@@ -107,4 +107,4 @@ namespace obj
 
 } // namespace obj
 
-#endif // !OBJ_OBJECT_HPP
+#endif // !OBJCPP_CORE_HPP

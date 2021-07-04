@@ -1,4 +1,4 @@
-#include "object.hpp"
+#include "obj-cpp/core.hpp"
 
 namespace obj
 {
