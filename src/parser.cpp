@@ -426,17 +426,17 @@ namespace obj
     {
         using _pec = ParserErrorCode;
 
-        DRAKO_ASSERT(!std::empty(tokens));
-        DRAKO_ASSERT(tokens.front().view() == "f");
+        assert(!std::empty(tokens));
+        assert(tokens.front().view() == "f");
 
         const auto F_MIN_ARGC = 4;
 
         if (std::size(tokens) < F_MIN_ARGC)
             return _make_token_error(line, tokens.back(), _pec::tag_f_invalid_args_count);
 
-        std::vector<int32_t> v(std::size(tokens));  // geometric vertices index
-        std::vector<int32_t> vt(std::size(tokens)); // texture vertices index
-        std::vector<int32_t> vn(std::size(tokens)); // vertex normals index
+        std::vector<std::int32_t> v(std::size(tokens));  // geometric vertices index
+        std::vector<std::int32_t> vt(std::size(tokens)); // texture vertices index
+        std::vector<std::int32_t> vn(std::size(tokens)); // vertex normals index
 
         for (auto i = 1 /*skip keyword token*/; i < std::size(tokens); ++i)
         {

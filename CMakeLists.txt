@@ -1,7 +1,7 @@
-﻿cmake_minimum_required (VERSION 3.8)
-project ("obj-cpp")
+﻿cmake_minimum_required(VERSION 3.8)
+project("obj-cpp" LANGUAGES CXX)
 
-option(OBJCPP_BUILD_TESTS "Build unit tests" ON)
+option(OBJ_CPP_BUILD_TESTS "Build unit tests" ON)
 
 add_library(obj-cpp STATIC
     "src/lexer.cpp"
@@ -33,7 +33,7 @@ export(
     NAMESPACE obj-cpp::
 )
 
-if (OBJCPP_BUILD_TESTS)
+if (OBJ_CPP_BUILD_TESTS)
     enable_testing()
     add_subdirectory("test")
 endif()

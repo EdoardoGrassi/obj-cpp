@@ -68,7 +68,7 @@ namespace obj
 
     struct Face
     {
-        //std::array<Tndex, 3> v;
+        //std::array<Index, 3> v;
         //std::array<Index, 3> vn;
         //std::array<Index, 3> vt;
         std::array<Triplet, 3> triplets;

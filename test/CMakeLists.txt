@@ -13,10 +13,9 @@ FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
 
-add_executable(obj_lexer_test "lexer_tests.cpp")
-target_link_libraries(obj_lexer_test PRIVATE ${PROJECT_NAME} gtest_main)
-gtest_discover_tests(obj_lexer_test)
-
-add_executable(obj_parser_test "parser_tests.cpp")
-target_link_libraries(obj_parser_test PRIVATE ${PROJECT_NAME} gtest_main)
-gtest_discover_tests(obj_parser_test)
+add_executable(obj-cpp-tests
+    "lexer_tests.cpp"
+    "parser_tests.cpp"
+)
+target_link_libraries(obj-cpp-tests PRIVATE obj-cpp gtest_main)
+gtest_discover_tests(obj-cpp-tests)
