@@ -11,6 +11,7 @@
 
 namespace obj
 {
+    /*
     /// @brief Token produced by the lexer.
     struct Token
     {
@@ -73,25 +74,27 @@ namespace obj
     {
         return os << "view: " << t.view() << ", type: " << to_string(t.type());
     }
+    */
+
+    using Token = std::string_view;
 
     class FiniteStateAutomata
     {
     public:
         enum class State : unsigned char
         {
-            whitespace,               // whitespace
+            whitespace  = 0,          // whitespace
             start_state = whitespace, // initial state of the automata
             alphanum,                 // sequence of non-whitespace characters
             comment,                  // comment text
-            after_cr,                 // hadle Windows-style line endings '\r''\n'
 
-            last_nonfinal_state = after_cr,
+            last_nonfinal_state = comment,
             //^^^ non-final states ^^^/vvv final states vvv
             first_final_state,
 
             final_alphanum,  // identifier
             final_newline,   // locale-indipenendent end of line
-            final_input_end, // reached the end of the input sequence '\0'
+            final_input_end, // reached the end of the input sequence
             final_error,     // error states sink
 
             last_state = final_error
@@ -99,13 +102,12 @@ namespace obj
 
         enum class EquivClass : unsigned char
         {
-            alphanum,
-            whitespace,
-            comment, // comment begin '#'
-            lf,      // line feed '\n'
-            cr,      // carriage return '\r'
-            end_of_input,
-            invalid,
+            alphanum = 0, // alphanumeric strings ([a..z][A..Z][0..9])
+            whitespace,   // ignored whitespace (spaces)
+            comment,      // comment start (#)
+            lf,           // line feed (Unix line terminator \n)
+            st,           // c/c++ string terminator (\0)
+            invalid,      // invalid characters (non-ascii characters)
 
             last_valid_value = invalid
         };
@@ -122,45 +124,36 @@ namespace obj
             const unsigned char IDENTIFIER_BEG = '!'; // first printable ASCII character
             const unsigned char IDENTIFIER_END = '~'; // last printable ASCII character
 
-            // fill equivalence classes table
+            // fill with invalid class then overwrite with other classes
             std::fill(std::begin(_eq_classes), std::end(_eq_classes), _ec::invalid);
             for (auto c = IDENTIFIER_BEG; c != IDENTIFIER_END; ++c)
                 _eq_classes[c] = _ec::alphanum;
 
-            _eq_classes[INPUT_END]  = _ec::end_of_input;
-            _eq_classes[WHITESPACE] = _ec::whitespace;
-            _eq_classes['#']        = _ec::comment;
-            _eq_classes['\n']       = _ec::lf;
-            _eq_classes['\r']       = _ec::cr;
+            _eq_classes[INPUT_END]   = _ec::st;
+            _eq_classes[WHITESPACE]  = _ec::whitespace;
+            _eq_classes[COMMENT_BEG] = _ec::comment;
+            _eq_classes[LINEFEED]    = _ec::lf;
 
             // fill automata transition table
             std::fill_n(&_fsa[0][0], sizeof(_fsa) / sizeof(decltype(_fsa[0][0])), _s::final_error);
 
-            t(_s::whitespace, _ec::whitespace)   = _s::whitespace;
-            t(_s::whitespace, _ec::alphanum)     = _s::alphanum;
-            t(_s::whitespace, _ec::comment)      = _s::comment;
-            t(_s::whitespace, _ec::lf)           = _s::final_newline;
-            t(_s::whitespace, _ec::cr)           = _s::after_cr;
-            t(_s::whitespace, _ec::end_of_input) = _s::final_input_end;
+            t(_s::whitespace, _ec::alphanum)   = _s::alphanum;
+            t(_s::whitespace, _ec::comment)    = _s::comment;
+            t(_s::whitespace, _ec::whitespace) = _s::whitespace;
+            t(_s::whitespace, _ec::lf)         = _s::final_newline;
+            t(_s::whitespace, _ec::st)         = _s::final_input_end;
 
-            t(_s::comment, _ec::comment)      = _s::comment;
-            t(_s::comment, _ec::alphanum)     = _s::comment;
-            t(_s::comment, _ec::whitespace)   = _s::comment;
-            t(_s::comment, _ec::lf)           = _s::final_newline;
-            t(_s::comment, _ec::cr)           = _s::whitespace;
-            t(_s::comment, _ec::end_of_input) = _s::final_input_end;
+            t(_s::comment, _ec::alphanum)   = _s::comment;
+            t(_s::comment, _ec::comment)    = _s::comment;
+            t(_s::comment, _ec::whitespace) = _s::comment;
+            t(_s::comment, _ec::lf)         = _s::final_newline;
+            t(_s::comment, _ec::st)         = _s::final_input_end;
 
-            t(_s::alphanum, _ec::alphanum)     = _s::alphanum;
-            t(_s::alphanum, _ec::comment)      = _s::final_alphanum;
-            t(_s::alphanum, _ec::whitespace)   = _s::final_alphanum;
-            t(_s::alphanum, _ec::end_of_input) = _s::final_alphanum;
-            t(_s::alphanum, _ec::lf)           = _s::final_alphanum;
-            t(_s::alphanum, _ec::cr)           = _s::final_alphanum;
-        }
-
-        [[nodiscard]] constexpr EquivClass equivalence_class(unsigned char c) const noexcept
-        {
-            return _eq_classes[c];
+            t(_s::alphanum, _ec::alphanum)   = _s::alphanum;
+            t(_s::alphanum, _ec::comment)    = _s::final_alphanum;
+            t(_s::alphanum, _ec::whitespace) = _s::final_alphanum;
+            t(_s::alphanum, _ec::lf)         = _s::final_alphanum;
+            t(_s::alphanum, _ec::st)         = _s::final_alphanum;
         }
 
         [[nodiscard]] constexpr State transition(State s, EquivClass c) const noexcept
@@ -173,6 +166,13 @@ namespace obj
             return State::start_state;
         }
 
+        // Automata transition function.
+        [[nodiscard]] constexpr State advance(State current, unsigned char c) const noexcept
+        {
+            return transition(current, _eq_classes[c]);
+        }
+
+        // Check whether a state can be skipped.
         [[nodiscard]] bool skip_state(State s) const noexcept
         {
             return s == State::whitespace || s == State::comment;
@@ -184,12 +184,14 @@ namespace obj
             return s >= State::first_final_state;
         }
 
-        friend void print_table(const FiniteStateAutomata& fsa);
-
     private:
         //std::array<EquivClass, 256> _eq_classes;
-        EquivClass _eq_classes[256];
-        State      _fsa[3][static_cast<std::size_t>(EquivClass::last_valid_value)];
+        static constexpr auto nsymbols = 256; // unsigned char
+        static constexpr auto nstates  = static_cast<std::size_t>(State::last_nonfinal_state);
+        static constexpr auto nclasses = static_cast<std::size_t>(EquivClass::last_valid_value);
+
+        EquivClass _eq_classes[nsymbols];
+        State      _fsa[nstates][nclasses];
 
         [[nodiscard]] constexpr State& t(State s, EquivClass c) noexcept
         {
@@ -206,7 +208,6 @@ namespace obj
             case LS::alphanum: return "FSA::State::alphanum";
             case LS::whitespace: return "FSA::State::whitespace";
             case LS::comment: return "FSA::State::comment";
-            case LS::after_cr: return "FSA::State::after_cr";
             case LS::final_alphanum: return "FSA::State::final_alphanum ";
             case LS::final_newline: return "FSA::State::final_newline";
             case LS::final_input_end: return "FSA::State::final_input_end ";
@@ -215,24 +216,16 @@ namespace obj
         }
     }
 
-    void inline print_table(const FiniteStateAutomata& fsa)
-    {
-        std::cout << "whitespace:\n";
-        for (auto s : fsa._fsa[0])
-            std::cout << to_string(s) << '\n';
+    /// @brief Parse tokens from the whole source text.
+    [[nodiscard]] std::vector<Token> lex(std::span<const char> s);
 
-        std::cout << "alphanum:\n";
-        for (auto s : fsa._fsa[1])
-            std::cout << to_string(s) << '\n';
-
-        std::cout << "comment:\n";
-        for (auto s : fsa._fsa[2])
-            std::cout << to_string(s) << '\n';
-    }
-
-    void normalize_line_endings(std::span<char> s) noexcept;
-
-    [[nodiscard]] std::vector<Token> lex(std::span<char> s);
+    /// @brief Parse tokens from a single line of source text.
+    ///
+    /// @param[in]  from   Starting position for the lexing phase.
+    /// @param[out] tokens Destination for produced tokens.
+    ///
+    /// @return Ending position of the lexing phase.
+    [[nodiscard]] const char* lex_until_linefeed(const char* from, std::vector<Token>& tokens);
 
 } // namespace obj
 

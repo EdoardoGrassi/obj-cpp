@@ -15,7 +15,13 @@ include(GoogleTest)
 
 add_executable(obj-cpp-tests
     "lexer_tests.cpp"
-    "parser_tests.cpp"
+    "obj_parser_tests.cpp"
+    "reader_tests.cpp"
+    "mtl_parser_tests.cpp"
+    "fuzzy_tests.cpp"
 )
-target_link_libraries(obj-cpp-tests PRIVATE obj-cpp gtest_main)
-gtest_discover_tests(obj-cpp-tests)
+target_link_libraries(obj-cpp-tests PRIVATE Obj-cpp::obj-cpp gtest_main)
+
+gtest_discover_tests(obj-cpp-tests
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/assets"
+)

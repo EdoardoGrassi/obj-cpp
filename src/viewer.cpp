@@ -1,4 +1,4 @@
-#include "obj-cpp/parser.hpp"
+#include "obj-cpp/obj.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -43,7 +43,7 @@ int main(const int argc, const char* argv[])
         std::exit(EXIT_SUCCESS);
     }
 
-    const obj::ParserConfig config{
+    const obj::ObjParserConfig config{
         .expected_object_count   = 1,
         .expected_vertex_count   = 1000,
         .expected_triangle_count = 1000 * 3
@@ -58,7 +58,7 @@ int main(const int argc, const char* argv[])
             std::string                 source{ std::istreambuf_iterator(file), {} };
 
             std::cout << "Parsing " << path << " ...\n";
-            const auto result = obj::parse(source, config);
+            const auto result = obj::parse_as_obj(source, config);
             std::cout << "Done.\n";
 
             /*

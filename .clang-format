@@ -12,6 +12,7 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AlignTrailingComments: true
 AlwaysBreakTemplateDeclarations: Yes
+# ArrayInitializerAlignmentStyle: Right
 BasedOnStyle: LLVM
 BraceWrapping:
   AfterCaseLabel: true
